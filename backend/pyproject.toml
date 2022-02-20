@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "src"
+version = "0.1.0"
+description = ""
+authors = ["Fabian Binz <fabian.binz@ambient.digital>"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+fastapi = "^0.73.0"
+uvicorn = {extras = ["standard"], version = "^0.17.4"}
+httpx = "^0.22.0"
+starlette-csrf = "^1.4.2"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

@@ -1,0 +1,45 @@
+version: "3.1"
+
+services:
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: local.dockerfile
+    container_name: app_backend
+    command: sh ./scripts/run_backend_local.sh
+    volumes:
+      - ./backend/src:/app/src
+    ports:
+      - "8000:8000"
+
+  api:
+    image: postgrest/postgrest
+    environment:
+      PGRST_SERVER_HOST: "*"
+      PGRST_SERVER_PORT: 8001
+      PGRST_DB_URI: postgres://web_authenticator:iamtheauthenticator@db:5432/app_db
+      PGRST_DB_SCHEMAS: "api"
+      PGRST_DB_ANON_ROLE: web_anon
+      PGRST_LOG_LEVEL: info
+      PGRST_DB_PRE_REQUEST: auth.pre_request
+    depends_on:
+      - db
+    ports:
+      - "8001:8001"
+
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: app_db
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: password
+      PGDATA: /data/postgres
+    volumes:
+      - pg_data:/data/postgres
+    ports:
+      - "5432:5432"
+
+volumes:
+  pg_data:
