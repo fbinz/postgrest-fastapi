@@ -35,9 +35,9 @@ solvable problem and probably will be a solution that I'll follow up on someday.
 
 Instead, I tried to find a more integrated solution, where every request can be
 handled optionally by a conventional backend framework. I chose FastAPI, since I
-wanted to try it out for some time.
-Requests that are not handled by FastAPI are routed to the PostgREST service.
-So FastAPI essentially serves as an ad-hoc reverse proxy.
+wanted to try it out for some time. Requests that are not handled by FastAPI are
+routed to the PostgREST service. So FastAPI essentially serves as an ad-hoc
+reverse proxy.
 
 ### Migrations
 
@@ -95,3 +95,33 @@ To prevent this from happening, take care of the following steps:
 2. For tables with RLS, always enable force RLS using both
     1. `alter table my_table enable row level security;`
     2. `alter table my_table force row level security;`
+
+### Helpers
+
+To help with debugging or getting object ownership right, there are some helper
+procedures defined in the `helpers` schema. These can be used via `psql` like
+so:
+
+```text
+# run psql using the developer role
+> docker-compose exec db psql -U developer -d app_db
+
+# use function info_all() to see object info
+app_db=> select * from helpers.info_all();
+ schema  |      name       |   type   |   owner   | info 
+---------+-----------------+----------+-----------+------
+ api     | login           | function | developer | 
+ api     | current_user    | function | developer | 
+ api     | register        | function | developer | 
+ api     | refresh_session | function | developer | 
+ api     | logout          | function | developer | 
+ api     | users           | view     | developer | 
+ app     | cryptpassword   | function | developer | 
+ app     | users           | table    | developer | rls!
+ auth    | current_user_id | function | developer | 
+ auth    | clean_sessions  | function | developer | 
+ ...
+```
+
+The `info` column show some important information, especially if row level
+security is enabled for a table (`rls`) and if its enforced (`rls!`).
